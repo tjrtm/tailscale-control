@@ -1,0 +1,62 @@
+name: Build and Release macOS App
+
+on:
+  push:
+    tags:
+      - "v*"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Show tool versions
+        run: |
+          swiftc --version
+          xcodebuild -version || true
+
+      - name: Build app
+        run: |
+          chmod +x scripts/build.sh scripts/package-dmg.sh build_macos_app.sh
+          VERSION="${GITHUB_REF_NAME:-0.0.0}" ./scripts/build.sh
+
+      - name: Run self-tests
+        run: |
+          "build/Tailscale Control.app/Contents/MacOS/Tailscale Control" --self-test
+          "build/Tailscale Control.app/Contents/MacOS/Tailscale Control" --close-self-test
+
+      - name: Verify app bundle
+        run: |
+          plutil -lint "build/Tailscale Control.app/Contents/Info.plist"
+          codesign --verify --deep --strict --verbose=2 "build/Tailscale Control.app"
+
+      - name: Package DMG
+        run: |
+          VERSION="${GITHUB_REF_NAME:-0.0.0}" ./scripts/package-dmg.sh
+
+      - name: Upload app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tailscale-Control-app
+          path: "build/Tailscale Control.app"
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tailscale-Control-dmg
+          path: "dist/*.dmg"
+
+      - name: Attach DMG to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "dist/*.dmg"
+          generate_release_notes: true

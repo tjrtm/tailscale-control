@@ -1,0 +1,35 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# Build outputs
+build/
+dist/
+*.dmg
+*.zip
+*.app
+
+# Swift/Xcode local state
+.build/
+DerivedData/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# Python/local prototype leftovers
+.venv/
+__pycache__/
+*.py[cod]
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Secrets/local env
+.env
+.env.*
+!.env.example
