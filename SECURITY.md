@@ -2,19 +2,22 @@
 
 ## Supported versions
 
-Security fixes are accepted for the latest released version and the current `main` branch.
+Security fixes are made for the latest release and the current `main` branch.
 
 ## Reporting a vulnerability
 
-Please report vulnerabilities privately through GitHub's private vulnerability reporting feature if it is enabled for the repository. If it is not enabled, open a minimal issue asking for a private disclosure contact without posting exploit details.
+Please report vulnerabilities privately through GitHub's private vulnerability reporting for this repository, if it is enabled. If it is not, open a minimal issue asking for a private contact, without exploit details.
 
 ## Security model
 
-Tailscale Control is a local macOS utility. It shells out to local CLIs using explicit argument arrays and does not run a network service.
+Tailscale Control is a local macOS app. It runs the `tailscale` command-line tool (and `docker`, for container discovery) as the current user, and it does not listen on any network port.
 
-Important boundaries:
+Boundaries to be aware of:
 
-- The app can change local `tailscale serve` configuration when the user clicks an apply/reset control.
-- Docker discovery reads local Docker metadata through the `docker` CLI.
-- The app should not collect telemetry or send project data to third-party services.
-- User-provided command parts must remain validated and must not be passed through shell interpolation.
+- **No shell.** Commands are built as argument arrays and started directly. Values the user types are validated first and never interpreted by a shell. The custom-command box tokenizes quotes only; it does not expand variables, globs, pipes or substitutions.
+- **The app can change your Tailscale configuration** when you press an apply, reset, connect or similar button. It shows the command first and asks for confirmation for destructive actions. It does not need administrator rights.
+- **Read-only refreshes** only run read-only `tailscale` commands.
+- **Secrets** passed as `--auth-key`, `--client-secret` or `--id-token` are masked in previews and in the Activity Log, but they are still visible to other local processes in the process list while a command runs. Prefer `file:` references where Tailscale supports them.
+- **Releases are ad-hoc signed**, not notarized. Verify downloads against the build you expect, or build from source.
+- **No telemetry** and no network requests of the app's own. See [PRIVACY.md](PRIVACY.md).
+- **Demo mode** (`--demo`) disables process execution entirely.

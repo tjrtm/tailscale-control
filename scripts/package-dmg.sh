@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_NAME="${APP_NAME:-Tailscale Control}"
-VERSION="${VERSION:-$(git -C "$ROOT_DIR" describe --tags --always --dirty 2>/dev/null || echo 0.1.0)}"
+VERSION="${VERSION:-$(tr -d '[:space:]' < "$ROOT_DIR/VERSION" 2>/dev/null || echo 1.0.0)}"
 APP_DIR="$ROOT_DIR/build/${APP_NAME}.app"
 DIST_DIR="$ROOT_DIR/dist"
 DMG_ROOT="$DIST_DIR/dmg-root"

@@ -1,7 +1,10 @@
-.PHONY: build test dmg clean verify
+.PHONY: build typecheck test dmg clean verify
 
 build:
 	./scripts/build.sh
+
+typecheck:
+	./scripts/build.sh --typecheck
 
 test: build
 	"build/Tailscale Control.app/Contents/MacOS/Tailscale Control" --self-test
